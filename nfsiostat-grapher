@@ -534,9 +534,12 @@ def print_iostat_summary(old, new, devices, time, options):
             #merge_data.update({"RPC_READDIRPLUS": diff_stats[device]._DeviceData__print_rpc_op_stats('READDIRPLUS',time,show=False)})
             merge_dicts(global_data, { device: merge_data})
 
-    # Add timestamp
-    date = int(datetime.datetime.now().strftime('%s'))
-    merge_dicts(global_data, {GLOBAL_DATA_DATE: date})
+    # We want to add timestamp only once and only with diff_stats
+    if old:
+        # Add timestamp
+        date = int(datetime.datetime.now().strftime('%s'))
+        merge_dicts(global_data, {GLOBAL_DATA_DATE: date})
+
     global dump_data
     if dump_data:
         output_data()
