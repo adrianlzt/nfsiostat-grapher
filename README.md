@@ -7,6 +7,8 @@ nfsiostat-grapher 1 -H output.html
 ```
 Para generar el reporte deberemos parar la ejecucción con Control+C (SIGINT).
 
+También podemos mandarle un ``kill -10 PID`` para forzarle a que genere los datos sin para la ejecucción.
+
 
 
 Generar reporte con diez metricas, una cada segundo:
