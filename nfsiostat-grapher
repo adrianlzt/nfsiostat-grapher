@@ -56,6 +56,7 @@ INFO_SUBFIELD = 'subfield'
 INFO_TITLE = 'title'
 INFO_FORMAT = 'format'
 GLOBAL_DATA_DATE = 'date'
+COLORS = ["#FF3300", "#003366", "#FFFF00", "#00CC99", "#9900FF", "#CC0099", "#996633", "#99CCFF", "#0000FF", "#66FF33", "#FF0000"]
 
 global_data = {}
 json_file = None
@@ -817,10 +818,17 @@ def generate_html_report():
                 INFO_TITLE : "Write ops/s",
                 INFO_FORMAT : "0.0 a"
             },
+            {
+                INFO_FIELD : ["RPC_READ", "RPC_WRITE"],
+                INFO_SUBFIELD: ["ops_s", "ops_s"],
+                INFO_TITLE : "Read/Write ops/s",
+                INFO_FORMAT : "0.0 a"
+            },
          ]
 
     for i in info:
         r = figure(x_axis_type="datetime", tools=TOOLS)
+        color_palette = list(COLORS)
         r.title = i[INFO_TITLE]
         r.yaxis[0].formatter = NumeralTickFormatter(format=i[INFO_FORMAT])
 
@@ -828,12 +836,31 @@ def generate_html_report():
             if mp == GLOBAL_DATA_DATE:
                 continue
 
-            color = '#%02X%02X%02X' % (c(),c(),c())
-            data = global_data[mp][i[INFO_FIELD]]
-            if i.has_key(INFO_SUBFIELD):
-                data = data.get(i.get(INFO_SUBFIELD))
-            r.line(time_ms, data, color=color, legend=mp)
-            r.circle(time_ms, data, color=color, legend=mp)
+            field = i[INFO_FIELD]
+
+            if isinstance(field, list):
+                for f in field:
+                    data = global_data[mp][f]
+                    if i.has_key(INFO_SUBFIELD):
+                        try:
+                            subfield = i.get(INFO_SUBFIELD)[field.index(f)]
+                            data = data.get(subfield)
+                            f = "%s %s" % (f,subfield)
+                        except AttributeError, e:
+                            sys.stderr.write("Check configuration for %s. Don't have subfield\n" % field)
+                            raise e
+                    color = color_palette.pop()
+                    r.line(time_ms, data, color=color, legend="%s %s" % (mp, f))
+                    r.circle(time_ms, data, color=color)
+            elif isinstance(field, str):
+                data = global_data[mp][field]
+                color = color_palette.pop()
+                if i.has_key(INFO_SUBFIELD):
+                    data = data.get(i.get(INFO_SUBFIELD))
+                r.line(time_ms, data, color=color, legend=mp)
+                r.circle(time_ms, data, color=color)
+            else:
+                raise Exception("Invalid data type in INFO_FIELD: %s" % type(data))
 
         plots.append(r)
 
