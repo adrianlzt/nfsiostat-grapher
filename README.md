@@ -28,7 +28,7 @@ nfsiostat-grapher -L example_data.json -H example_output.html
 8 hours of capture each 2" with 3 NFS units weight: 69MB
 
 
-To generate data we need these libs:
+To generate graphics we need these libs:
 ```
 bokeh==0.10.0
 ```
